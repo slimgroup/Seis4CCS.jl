@@ -69,5 +69,3 @@ for i = 1:L
 end
 
 JLD2.@save "../data/dobs$(L)vint.jld2" dobs_stack q_stack
-
-finalize_culsterless()
