@@ -19,7 +19,13 @@ Then, under `Seis4CCS.jl`, run
 L=x nsrc=y bash runall.sh
 ```
 
-where integer `x` is the number of vintages in the experiment (maximum is 879), and integer `y` is number of jittered sample seismic sources in each vintage (different for each vintage, suggested to be more than `8`). `x` and `y` willl be provided by user. The generated seismic data will be saved in `./data` folder and recovery results will be saved in `./results` folder.
+where integer `x` is the number of vintages in the experiment (maximum is 879), and integer `y` is number of jittered sample seismic sources in each vintage (different for each vintage, suggested to be more than `8`). `x` and `y` willl be provided by user. The generated seismic data will be saved in `./data` folder and recovery results will be saved in `./results` folder. To test if everything runs without error, you could do
+
+```bash
+L=2 nsrc=8 bash runall.sh
+```
+
+Notice that if you set `L` and `nsrc` to be very large, it may require massive disk space and memory on your local machine. It is also suggested to add `--oom-kill-disable` when you run the docker image.
 
 There is `rclone` installed in the docker image. Feel free to use it to upload the results to your preferred online platforms.
 
