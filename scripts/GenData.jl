@@ -11,11 +11,16 @@ function parse_commandline()
             help = "Number of vintages"
             arg_type = Int
             default = 2
+        "--nsrc"
+            help = "Number of sources per vintage"
+            arg_type = Int
+            default = 2
     end
     return parse_args(s)
 end
 parsed_args = parse_commandline()
 L = parsed_args["nv"]
+nsrc = parsed_args["nsrc"]
 
 Random.seed!(1234)
 
@@ -31,7 +36,6 @@ model = Model(n,d,o,m; rho=rho,nb=80)
 dtS = dtR = 4f0
 timeS = timeR = 2500f0
 
-nsrc = 64   # 62.5m
 nrec = Int.(floor((n[1]-1)*d[1]))   # 1m
 
 creds=joinpath(pwd(),"..","credentials.json")
@@ -59,7 +63,10 @@ opt = JUDI.Options(free_surface=true)
 
 F_stack = [judiProjection(info, recGeometry)*judiModeling(info, model; options=opt)*adjoint(judiProjection(info, srcGeometry_stack[i])) for i = 1:L]
 
-dobs_stack = [F_stack[i] * q_stack[i] for i = 1:L]
+dobs_stack = Array{judiVector{Float32,Array{Float32,2}},1}(undef, L)
+for i = 1:L
+    dobs_stack[i] = F_stack[i] * q_stack[i]
+end
 
 JLD2.@save "../data/dobs$(L)vint.jld2" dobs_stack q_stack
 

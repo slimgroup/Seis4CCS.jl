@@ -14,5 +14,5 @@ wget https://www.dropbox.com/s/radan2hxgb5jnc5/Conc.jld2
 cd ../scripts
 
 julia ConcToV.jl --nv $L
-julia GenData.jl --nv $L
+julia GenData.jl --nv $L --nsrc $nsrc
 julia JRM.jl --nv $L
