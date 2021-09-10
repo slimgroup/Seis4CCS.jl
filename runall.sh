@@ -15,4 +15,4 @@ cd ../scripts
 
 julia ConcToV.jl --nv $L
 julia GenData.jl --nv $L
-julia JRMlocal.jl --nv $L
+julia JRM.jl --nv $L
