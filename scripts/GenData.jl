@@ -59,7 +59,10 @@ opt = JUDI.Options(free_surface=true)
 
 F_stack = [judiProjection(info, recGeometry)*judiModeling(info, model; options=opt)*adjoint(judiProjection(info, srcGeometry_stack[i])) for i = 1:L]
 
-dobs_stack = [F_stack[i] * q_stack[i] for i = 1:L]
+dobs_stack = Array{judiVector{Float32,Array{Float32,2}},1}(undef, L)
+for i = 1:L
+    dobs_stack[i] = F_stack[i] * q_stack[i]
+end
 
 JLD2.@save "../data/dobs$(L)vint.jld2" dobs_stack q_stack
 
