@@ -4,15 +4,22 @@ This repository contains scripts to run seismic monitoring of CCS with joint rec
 
 ## TO-DO
 
-First, please put your Azure credential file in this directory (`Seis4CCS.jl/credentials.json`).
+First, please put your Azure credential file in this directory (`Seis4CCS.jl/credentials.json`). e.g. do
 
-Then, run this command under `Seis4CCS.jl`
+```bash
+touch credentials.json
+vi credentials.json
+```
+
+and copy-paste your credentials to this file.
+
+Then, under `Seis4CCS.jl`, run
 
 ```bash
 L=x bash runall.sh
 ```
 
-where `x` is the number of vintages in the experiment and is provided by user (maximum is 879). The generated seismic data will be saved in `./data` folder and recovery results will be saved in `./results` folder.
+where `x` (an integer) is the number of vintages in the experiment and is provided by user (maximum is 879). The generated seismic data will be saved in `./data` folder and recovery results will be saved in `./results` folder.
 
 There is `rclone` installed in the docker image. Feel free to use it to upload the results to your preferred online platforms.
 
