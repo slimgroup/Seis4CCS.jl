@@ -53,8 +53,8 @@ nn = prod(model0.n)
 x = zeros(Float32, nn)
 z = zeros(Float32, nn)
 
-batchsize = 8
-niter = 16
+batchsize = 2
+niter = 2
 
 fval = zeros(Float32, niter)
 

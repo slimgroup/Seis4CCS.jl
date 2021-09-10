@@ -31,7 +31,7 @@ model = Model(n,d,o,m; rho=rho,nb=80)
 dtS = dtR = 4f0
 timeS = timeR = 2500f0
 
-nsrc = 64   # 62.5m
+nsrc = 4
 nrec = Int.(floor((n[1]-1)*d[1]))   # 1m
 
 creds=joinpath(pwd(),"..","credentials.json")
