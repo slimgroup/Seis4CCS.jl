@@ -148,3 +148,5 @@ for  j=1:niter
 	end
     JLD2.@save "../results/JRM$(j)Iter$(L)vintages.jld2" x z g lambda phi
 end
+
+finalize_culsterless()

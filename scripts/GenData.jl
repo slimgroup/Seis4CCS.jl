@@ -62,3 +62,5 @@ F_stack = [judiProjection(info, recGeometry)*judiModeling(info, model; options=o
 dobs_stack = [F_stack[i] * q_stack[i] for i = 1:L]
 
 JLD2.@save "../data/dobs$(L)vint.jld2" dobs_stack q_stack
+
+finalize_culsterless()
