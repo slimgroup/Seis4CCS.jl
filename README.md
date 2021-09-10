@@ -27,6 +27,6 @@ There is `rclone` installed in the docker image. Feel free to use it to upload t
 
 If any question, please contact
 
-Ziyi (Francis) Yin, ziyi.yin@gatech.edu
-Mathias Louboutin, mlouboutin3@gatech.edu
-Felix J. Herrmann, felix.herrmann@gatech.edu
+Ziyi (Francis) Yin, ziyi.yin@gatech.edu    
+Mathias Louboutin, mlouboutin3@gatech.edu    
+Felix J. Herrmann, felix.herrmann@gatech.edu     

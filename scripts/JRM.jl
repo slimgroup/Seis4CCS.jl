@@ -54,7 +54,7 @@ x = zeros(Float32, nn)
 z = zeros(Float32, nn)
 
 batchsize = 8
-niter = 8
+niter = 16
 
 fval = zeros(Float32, niter)
 
