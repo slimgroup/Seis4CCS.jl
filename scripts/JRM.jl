@@ -12,6 +12,7 @@ L = parsed_args["nv"]
 vm = parsed_args["vm"]
 niter = parsed_args["niter"]
 nth = parsed_args["nth"]
+nsrc = parsed_args["nsrc"]
 
 Random.seed!(1234);
 
