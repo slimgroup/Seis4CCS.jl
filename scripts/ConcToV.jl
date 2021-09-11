@@ -4,16 +4,7 @@ using JOLI, Statistics, FFTW
 using JUDI
 using Polynomials
 using ArgParse
-function parse_commandline()
-    s = ArgParseSettings()
-    @add_arg_table s begin
-        "--nv"
-            help = "Number of vintages"
-            arg_type = Int
-            default = 2
-    end
-    return parse_args(s)
-end
+include("../utils/parse_cmd.jl")
 parsed_args = parse_commandline()
 L = parsed_args["nv"]
 

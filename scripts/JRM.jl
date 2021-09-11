@@ -6,23 +6,17 @@ using Printf
 using JUDI4Cloud
 
 using ArgParse
-function parse_commandline()
-    s = ArgParseSettings()
-    @add_arg_table s begin
-        "--nv"
-            help = "Number of vintages"
-            arg_type = Int
-            default = 2
-    end
-    return parse_args(s)
-end
+include("../utils/parse_cmd.jl")
 parsed_args = parse_commandline()
 L = parsed_args["nv"]
+vm = parsed_args["vm"]
+niter = parsed_args["niter"]
+nth = parsed_args["nth"]
 
 Random.seed!(1234);
 
 creds=joinpath(pwd(),"..","credentials.json")
-init_culsterless(8*L; credentials=creds, vm_size="Standard_F4", pool_name="JRM", verbose=1, nthreads=4)
+init_culsterless(8*L; credentials=creds, vm_size=vm, pool_name="JRM", verbose=1, nthreads=nth)
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
 JLD2.@load "../models/timelapsevrho$(L)vint.jld2" vp_stack rho_stack
@@ -54,7 +48,6 @@ x = zeros(Float32, nn)
 z = zeros(Float32, nn)
 
 batchsize = 8
-niter = 16
 
 fval = zeros(Float32, niter)
 

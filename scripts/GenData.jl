@@ -4,23 +4,12 @@ using JUDI4Cloud
 using Printf
 
 using ArgParse
-function parse_commandline()
-    s = ArgParseSettings()
-    @add_arg_table s begin
-        "--nv"
-            help = "Number of vintages"
-            arg_type = Int
-            default = 2
-        "--nsrc"
-            help = "Number of sources per vintage"
-            arg_type = Int
-            default = 2
-    end
-    return parse_args(s)
-end
+include("../utils/parse_cmd.jl")
 parsed_args = parse_commandline()
 L = parsed_args["nv"]
 nsrc = parsed_args["nsrc"]
+vm = parsed_args["vm"]
+nth = parsed_args["nth"]
 
 Random.seed!(1234)
 
@@ -39,7 +28,7 @@ timeS = timeR = 2500f0
 nrec = Int.(floor((n[1]-1)*d[1]))   # 1m
 
 creds=joinpath(pwd(),"..","credentials.json")
-init_culsterless(nsrc; credentials=creds, vm_size="Standard_F4", pool_name="Fq", verbose=1, nthreads=4)
+init_culsterless(nsrc; credentials=creds, vm_size=vm, pool_name="Fq", verbose=1, nthreads=nth)
 
 xsrc_stack = [convertToCell(ContJitter(n, d, nsrc)) for i = 1:L]
 ysrc = convertToCell(range(0f0,stop=0f0,length=nsrc))
