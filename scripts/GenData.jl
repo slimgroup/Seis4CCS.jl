@@ -57,4 +57,4 @@ for i = 1:L
     dobs_stack[i] = F_stack[i] * q_stack[i]
 end
 
-JLD2.@save "../data/dobs$(L)vint.jld2" dobs_stack q_stack
+JLD2.@save "../data/dobs$(L)vint$(nsrc)nsrc.jld2" dobs_stack q_stack
