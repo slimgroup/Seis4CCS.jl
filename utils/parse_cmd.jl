@@ -8,7 +8,7 @@ function parse_commandline()
         "--nsrc"
             help = "Number of sources per vintage"
             arg_type = Int
-            default = 2
+            default = 8
         "--vm"
             help = "Type of virtual machine"
             arg_type = String
