@@ -17,7 +17,7 @@ nsrc = parsed_args["nsrc"]
 Random.seed!(1234);
 
 creds=joinpath(pwd(),"..","credentials.json")
-init_culsterless(8*L; credentials=creds, vm_size=vm, pool_name="JRM", verbose=1, nthreads=nth, auto_scale=false)
+init_culsterless(8*L; credentials=creds, vm_size=vm, pool_name="IndpRecovery", verbose=1, nthreads=nth, auto_scale=false)
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
 JLD2.@load "../models/timelapsevrho$(L)vint.jld2" vp_stack rho_stack
