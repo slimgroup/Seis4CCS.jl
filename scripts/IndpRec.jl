@@ -39,12 +39,12 @@ opt = JUDI.Options(isic=true,free_surface=true)
 
 # Preconditioner
 
-Tm = judiTopmute(model0.n, maximum(idx_wb), 3)  # Mute water column
-S = judiDepthScaling(model0)
+Tm = judiTopmute(model0_stack[1].n, maximum(idx_wb), 3)  # Mute water column
+S = judiDepthScaling(model0_stack[1])
 Mr = Tm*S
 
 # Linearized Bregman parameters
-nn = prod(model0.n)
+nn = prod(model0_stack[1].n)
 x = zeros(Float32, nn)
 z = zeros(Float32, nn)
 
