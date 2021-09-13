@@ -120,7 +120,7 @@ for  j=1:niter
 	global t = 2f-5/12.5 # fixed step
 
     # anti-chatter
-	for i = 1:L+1
+	for i = 1:L
 		global sumsign[i] = sumsign[i] + sign.(g[i])
 		global tau[i] .= t
 		global tau[i][findall(flag[i])] = deepcopy((t*abs.(sumsign[i])/j)[findall(flag[i])])
@@ -131,7 +131,7 @@ for  j=1:niter
 
 	# Update variables and save snapshot
 	global x = [adjoint(C)*soft_thresholding(z[i], lambda[i]) for i = 1:L]
-	for i = 1:L+1
+	for i = 1:L
 		global flag[i] = flag[i] .| (abs.(z[i]).>=lambda[i])     # check if ever pass the threshold
 	end
     JLD2.@save "../results/IndpRecov$(j)Iter$(L)vintages$(nsrc)nsrc.jld2" x z g lambda phi

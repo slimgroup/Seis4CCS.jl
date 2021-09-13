@@ -113,8 +113,11 @@ for  j=1:niter
     dmx = [Mr*xdm[i] for i = 1:L]
     
     phi, g1 = lsrtm_objective(Model0, source, dObs, dmx; options=opt, nlind=true)
-    g = [1f0/γ*C*Mr'*vec(sum(g1)), [C*Mr'*vec(g1[i]) for i=1:L]...]
-
+	g = Array{Array{Float64,1},1}(undef, L+1)
+	g[1] = 1f0/γ*C*Mr'*vec(sum(g1))
+	for i = 2:L+1
+		g[i] = C*Mr'*vec(g1[i-1])
+	end
 	@printf("At iteration %d function value is %2.2e \n", j, phi)
 	flush(Base.stdout)
 	# Step size and update variable

@@ -22,4 +22,5 @@ niter=${niter:=16}
 julia pre.jl
 julia ConcToV.jl --nv $L
 julia GenLinearData.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth
-julia JRMlinear.jl --nv $L --vm $vm --nth $nth --niter $niter
+julia JRMlinear.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter
+julia IndpRec.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter
