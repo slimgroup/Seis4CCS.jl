@@ -16,10 +16,10 @@ and copy-paste your credentials to this file.
 Then, under `Seis4CCS.jl`, run
 
 ```bash
-L=a nsrc=b vm=c nth=d niter=e bs=f bash runall.sh
+L=a nsrc=b vm=c nth=d niter=e bs=f snr=g bash runall.sh
 ```
 
-where integer `a` is the number of vintages in the experiment (maximum is 879), integer `b` is number of jittered sample seismic sources in each vintage (different for each vintage, suggested to be more than `8`), `c` is the type of virtual machine for seismic data simulation and imaging, `d` is the number of threads on each computing node in Azure batch, `e` is the number of joint recovery iterations, `f` is the batchsize in a JRM iteration. The default values of `a,b,c,d,e` are `2,8,Standard_F4,4,16,4`.
+where integer `a` is the number of vintages in the experiment (maximum is 879), integer `b` is number of jittered sample seismic sources in each vintage (different for each vintage, suggested to be more than `8`), `c` is the type of virtual machine for seismic data simulation and imaging, `d` is the number of threads on each computing node in Azure batch, `e` is the number of joint recovery iterations, `f` is the batchsize in a JRM iteration, float `g` is the SNR of the noise to be added in the data. The default values of `a,b,c,d,e,f,g` are `2,8,Standard_F4,4,16,4,0.0`.
 
 When the aformentioned program finishes, the generated seismic data will be saved in `./data` folder and each iteration of joint recovery results will be saved in `./results` folder. To test if everything runs without error in a small scale, you could do
 

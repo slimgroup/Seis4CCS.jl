@@ -25,6 +25,10 @@ function parse_commandline()
             help = "batchsize in JRM iterations"
             arg_type = Int
             default = 4
+        "--snr"
+            help = "SNR of noisy data"
+            arg_type = Float32
+            default = 0.0
     end
     return parse_args(s)
 end
