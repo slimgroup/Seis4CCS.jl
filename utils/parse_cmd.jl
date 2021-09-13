@@ -20,7 +20,11 @@ function parse_commandline()
         "--niter"
             help = "JRM iterations"
             arg_type = Int
-            default = 16
+            default = 8
+        "--bs"
+            help = "batchsize in JRM iterations"
+            arg_type = Int
+            default = 4
     end
     return parse_args(s)
 end

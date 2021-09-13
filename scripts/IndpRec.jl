@@ -13,11 +13,12 @@ vm = parsed_args["vm"]
 niter = parsed_args["niter"]
 nth = parsed_args["nth"]
 nsrc = parsed_args["nsrc"]
+batchsize = parsed_args["bs"]
 
 Random.seed!(1234);
 
 creds=joinpath(pwd(),"..","credentials.json")
-init_culsterless(8*L; credentials=creds, vm_size=vm, pool_name="IndpRecovery", verbose=1, nthreads=nth, auto_scale=false)
+init_culsterless(batchsize*L; credentials=creds, vm_size=vm, pool_name="IndpRecovery", verbose=1, nthreads=nth, auto_scale=false)
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
 JLD2.@load "../models/timelapsevrho$(L)vint.jld2" vp_stack rho_stack
@@ -47,8 +48,6 @@ Mr = Tm*S
 nn = prod(model0_stack[1].n)
 x = zeros(Float32, nn)
 z = zeros(Float32, nn)
-
-batchsize = 8
 
 fval = zeros(Float32, niter)
 
