@@ -27,7 +27,7 @@ function parse_commandline()
             default = 4
         "--snr"
             help = "SNR of noisy data"
-            arg_type = Float32
+            arg_type = Float64
             default = 0.0
     end
     return parse_args(s)
