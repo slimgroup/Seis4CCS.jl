@@ -20,5 +20,5 @@ nth=${nth:=4}
 niter=${niter:=16}
 
 julia ConcToV.jl --nv $L
-julia GenData.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth
-julia JRM.jl --nv $L --vm $vm --nth $nth --niter $niter
+julia GenLinearData.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth
+julia JRMlinear.jl --nv $L --vm $vm --nth $nth --niter $niter
