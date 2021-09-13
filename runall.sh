@@ -19,6 +19,7 @@ vm=${vm:=Standard_F4}
 nth=${nth:=4}
 niter=${niter:=16}
 
+julia pre.jl
 julia ConcToV.jl --nv $L
 julia GenLinearData.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth
 julia JRMlinear.jl --nv $L --vm $vm --nth $nth --niter $niter
