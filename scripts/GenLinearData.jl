@@ -13,7 +13,7 @@ vm = parsed_args["vm"]
 nth = parsed_args["nth"]
 
 creds=joinpath(pwd(),"..","credentials.json")
-init_culsterless(nsrc; credentials=creds, vm_size=vm, pool_name="Jdm", verbose=1, nthreads=nth)
+init_culsterless(nsrc*L; credentials=creds, vm_size=vm, pool_name="Jdm", verbose=1, nthreads=nth, auto_scale=false)
 
 Random.seed!(1234)
 
