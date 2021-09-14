@@ -35,7 +35,7 @@ rho0 = deepcopy(rho_stack[1])
 rho0[:,maximum(idx_wb)+1:end] .= 1f0./convert(Array{Float32,2},imfilter(1f0./rho_stack[1][:,maximum(idx_wb)+1:end], Kernel.gaussian(10)))
 
 model0 = Model(n,d,o,m0; rho=rho0,nb=80)
-opt = JUDI.Options(isic=true,free_surface=true)
+opt = JUDI.Options(isic=true)
 
 # Preconditioner
 
