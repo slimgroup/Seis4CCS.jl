@@ -16,9 +16,8 @@ nsrc = parsed_args["nsrc"]
 batchsize = parsed_args["bs"]
 
 Random.seed!(1234);
-
 creds=joinpath(pwd(),"..","credentials.json")
-init_culsterless(batchsize*L; credentials=creds, vm_size=vm, pool_name="JRM", verbose=1, nthreads=nth, auto_scale=false)
+init_culsterless(L; credentials=creds, vm_size=vm, pool_name="JRMsim", verbose=1, nthreads=nth, auto_scale=false, n_julia_per_instance=batchsize)
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
 JLD2.@load "../models/timelapsevrho$(L)vint.jld2" vp_stack rho_stack
@@ -88,6 +87,14 @@ sumsign = [zeros(Float32,size(C,1)) for i=1:L+1]
 
 lambda = zeros(Float64,L+1)
 
+# sim src acquisition
+xsrc_stack = [[[q_stack[i].geometry.xloc[s][1] for s = 1:nsrc] for k = 1:batchsize] for i = 1:L]
+ysrc_stack = [[[0.0f0] for k = 1:batchsize] for i = 1:L]
+zsrc_stack = [[[q_stack[i].geometry.zloc[s][1] for s = 1:nsrc] for k = 1:batchsize] for i = 1:L]
+
+src_geometry_stack = [Geometry(xsrc_stack[i], ysrc_stack[i], zsrc_stack[i]; dt=q_stack[i].geometry.dt[1], t=q_stack[i].geometry.t[1]) for i = 1:L]
+
+
 # Main loop
 
 for  j=1:niter
@@ -95,29 +102,30 @@ for  j=1:niter
 	# Main loop			   
     @printf("JRM Iteration: %d \n", j)
     flush(Base.stdout)
-				
-    xdm = [1f0/γ*x[1]+x[i+1] for i=1:L];
-    global inds = [zeros(Int, batchsize) for i=1:L]
 
-    for i = 1:L
-        length(src_list[i]) < batchsize && (global src_list[i] = collect(1:nsrc))
-		src_list[i] = src_list[i][randperm(MersenneTwister(i+2000*j),length(src_list[i]))]
-		global inds[i] = [pop!(src_list[i]) for b=1:batchsize]
-		println("Vintage $(i) Imaging source $(inds[i])")
-    end
+    # Set up weights for current iteration
+    weights = [randn(Float32, batchsize, nsrc) for i = 1:L]
 
-    source = [q_stack[i][inds[i]] for i = 1:L]
-    dObs = [dobs_stack[i][inds[i]] for i = 1:L]
-    dmx = [Mr*xdm[i] for i = 1:L]
+    # Create wavelet
+    wavelet = [[hcat(q_stack[i].data...) .* weights[i][k:k,:] for k = 1:batchsize] for i = 1:L]
+
+    # Create sim src
+    q_j = [judiVector(src_geometry_stack[i], wavelet[i]) for i = 1:L]  # super shot for current iteration
+
+    # Create sim data
+    data_j = [[sum(weights[i][k,:].*dobs_stack[i].data) for k = 1:batchsize] for i = 1:L]
+    dobs_j = [judiVector(Geometry(dobs_stack[i].geometry.xloc[1],dobs_stack[i].geometry.yloc[1],dobs_stack[i].geometry.zloc[1]; dt=dobs_stack[i].geometry.dt[1], t=dobs_stack[i].geometry.t[1], nsrc=batchsize),data_j[i]) for i = 1:L]
+
+    dmx = [Mr*(1f0/γ*x[1]+x[i+1]) for i = 1:L]
     
-    phi, g1 = lsrtm_objective(model0_stack, source, dObs, dmx; options=opt, nlind=false)
+    phi, g1 = lsrtm_objective(model0_stack, q_j, dobs_j, dmx; options=opt, nlind=false)
     g = [1f0/γ*C*Mr'*vec(sum(g1)), [C*Mr'*vec(g1[i]) for i=1:L]...]
 
 	@printf("At iteration %d function value is %2.2e \n", j, phi)
 	flush(Base.stdout)
 	# Step size and update variable
 
-	global t = γ^2f0*2f-5/(L+γ^2f0)/12.5 # fixed step
+	global t = 2*phi/norm(g)^2 # dynamic step
 
     # anti-chatter
 	for i = 1:L+1
@@ -138,5 +146,5 @@ for  j=1:niter
 		global x[i] = adjoint(C)*soft_thresholding(z[i], lambda[i])
 		global flag[i] = flag[i] .| (abs.(z[i]).>=lambda[i])     # check if ever pass the threshold
 	end
-    JLD2.@save "../results/JRM$(j)Iter$(L)vintages$(nsrc)nsrc.jld2" x z g lambda phi
+    JLD2.@save "../results/JRMsim$(j)Iter$(L)vintages$(nsrc)nsrc.jld2" x z g lambda phi
 end
