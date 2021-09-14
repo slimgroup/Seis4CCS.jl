@@ -15,7 +15,7 @@ nth = parsed_args["nth"]
 nsrc = parsed_args["nsrc"]
 batchsize = parsed_args["bs"]
 
-Random.seed!(1234);
+Random.seed!(4321);
 
 creds=joinpath(pwd(),"..","credentials.json")
 init_culsterless(batchsize*L; credentials=creds, vm_size=vm, pool_name="IndpRecovery", verbose=1, nthreads=nth, auto_scale=false)
