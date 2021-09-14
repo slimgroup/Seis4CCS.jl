@@ -1,3 +1,5 @@
+cd scripts
+
 L=64
 nsrc=16
 niter=8
