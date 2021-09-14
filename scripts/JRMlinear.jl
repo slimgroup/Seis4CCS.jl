@@ -36,7 +36,7 @@ m0_stack = [1f0./v0_stack[i].^2f0 for i = 1:L]
 
 model0_stack = [Model(n,d,o,m0_stack[i]; nb=80) for i = 1:L]
 
-opt = JUDI.Options(isic=true,free_surface=true)
+opt = JUDI.Options(isic=true)
 
 # Preconditioner
 
