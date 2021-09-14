@@ -1,0 +1,1 @@
+L=64 nsrc=16 niter=8 bs=4 bash runall.sh
