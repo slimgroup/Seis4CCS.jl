@@ -134,8 +134,8 @@ for  j=1:niter
     end
 
 	# Update variables and save snapshot
-	global x = [adjoint(C)*soft_thresholding(z[i], lambda[i]) for i = 1:L+1]
 	for i = 1:L+1
+		global x[i] = adjoint(C)*soft_thresholding(z[i], lambda[i])
 		global flag[i] = flag[i] .| (abs.(z[i]).>=lambda[i])     # check if ever pass the threshold
 	end
     JLD2.@save "../results/JRM$(j)Iter$(L)vintages$(nsrc)nsrc.jld2" x z g lambda phi

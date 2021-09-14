@@ -129,8 +129,8 @@ for  j=1:niter
 	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .8) for i = 1:L]	# estimate thresholding parameter at 1st iteration
 
 	# Update variables and save snapshot
-	global x = [adjoint(C)*soft_thresholding(z[i], lambda[i]) for i = 1:L]
 	for i = 1:L
+		global x[i] = adjoint(C)*soft_thresholding(z[i], lambda[i])
 		global flag[i] = flag[i] .| (abs.(z[i]).>=lambda[i])     # check if ever pass the threshold
 	end
     JLD2.@save "../results/IndpRecov$(j)Iter$(L)vintages$(nsrc)nsrc.jld2" x z g lambda phi
