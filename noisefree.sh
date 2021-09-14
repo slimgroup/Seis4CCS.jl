@@ -1,1 +1,1 @@
-L=64 nsrc=16 niter=8 bs=4 bash runall.sh
+L=64 nsrc=16 niter=8 bs=4 vm=Standard_E2s_v3 nth=2 bash runall.sh
