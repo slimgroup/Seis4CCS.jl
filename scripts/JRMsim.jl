@@ -43,13 +43,6 @@ Tm = judiTopmute(model0_stack[1].n, maximum(idx_wb), 3)  # Mute water column
 S = judiDepthScaling(model0_stack[1])
 Mr = Tm*S
 
-# Linearized Bregman parameters
-nn = prod(model0_stack[1].n)
-x = zeros(Float32, nn)
-z = zeros(Float32, nn)
-
-fval = zeros(Float32, niter)
-
 # Soft thresholding functions and Curvelet transform
 soft_thresholding(x::Array{Float64}, lambda) = sign.(x) .* max.(abs.(x) .- convert(Float64, lambda), 0.0)
 soft_thresholding(x::Array{Float32}, lambda) = sign.(x) .* max.(abs.(x) .- convert(Float32, lambda), 0f0)
@@ -78,10 +71,6 @@ ps = 0
 
 x = [zeros(Float32, size(C,2)) for i=1:L+1];
 z = [zeros(Float64, size(C,1)) for i=1:L+1];
-
-tau = [zeros(Float32,size(C,1)) for i=1:L+1];
-flag = [BitArray(undef,size(C,1)) for i=1:L+1];
-sumsign = [zeros(Float32,size(C,1)) for i=1:L+1]
 
 lambda = zeros(Float64,L+1)
 
@@ -127,10 +116,7 @@ for  j=1:niter
 
     # anti-chatter
 	for i = 1:L+1
-		global sumsign[i] = sumsign[i] + sign.(g[i])
-		global tau[i] .= t
-		global tau[i][findall(flag[i])] = deepcopy((t*abs.(sumsign[i])/j)[findall(flag[i])])
-		global z[i] -= tau[i] .* g[i]
+		global z[i] -= t .* g[i]
 	end
 
 	(j==1) && global lambda = [quantile(abs.(vec(z[i])), .9) for i = 1:L+1]	# estimate thresholding parameter at 1st iteration
@@ -142,7 +128,9 @@ for  j=1:niter
 	# Update variables and save snapshot
 	for i = 1:L+1
 		global x[i] = adjoint(C)*soft_thresholding(z[i], lambda[i])
-		global flag[i] = flag[i] .| (abs.(z[i]).>=lambda[i])     # check if ever pass the threshold
 	end
     JLD2.@save "../results/JRMsim$(j)Iter$(L)vintages$(nsrc)nsrc.jld2" x z g lambda phi
 end
+
+using AzureClusterlessHPC
+delete_all_jobs()
