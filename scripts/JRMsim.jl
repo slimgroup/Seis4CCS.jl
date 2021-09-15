@@ -73,10 +73,8 @@ C = joLinearFunctionFwd_T(size(C0, 1), n[1]*n[2],
                           b -> C_adj(b, C0, n),
                           Float32,Float64, name="Cmirrorext")
 
-src_list = [collect(1:nsrc) for i = 1:L]
-
 ps = 0
-γ  = L/2f0 # hyperparameter to tune
+γ  = L/5f0 # hyperparameter to tune
 
 x = [zeros(Float32, size(C,2)) for i=1:L+1];
 z = [zeros(Float64, size(C,1)) for i=1:L+1];
