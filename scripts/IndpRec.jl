@@ -118,7 +118,7 @@ for  j=1:niter
 		global z[i] -= t .* g[i]
 	end
 
-	(j==1) && global lambda = [quantile(abs.(vec(z[i])), .9) for i = 1:L]	# estimate thresholding parameter at 1st iteration
+	(j==1) && global lambda = [quantile(abs.(vec(z[i])), .95) for i = 1:L]	# estimate thresholding parameter at 1st iteration
     lambda1 = maximum(lambda)
     for i = 1:L
         global lambda[i] = lambda1
