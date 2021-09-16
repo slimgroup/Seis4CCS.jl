@@ -25,4 +25,4 @@ end
 
 dobs_stack = dobs_stack + noise_stack
 
-JLD2.@load "../data/dobs$(L)vint$(nsrc)nsrc.jld2" dobs_stack q_stack
+JLD2.@save "../data/dobs$(L)vint$(nsrc)nsrc.jld2" dobs_stack q_stack
