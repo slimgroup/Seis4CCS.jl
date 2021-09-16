@@ -15,7 +15,7 @@ cd ../scripts
 
 L=${L:=2}
 nsrc=${nsrc:=4}
-vm=${vm:=Standard_F8}
+vm=${vm:=Standard_E8s_v3}
 nth=${nth:=8}
 niter=${niter:=16}
 bs=${bs:=4}
