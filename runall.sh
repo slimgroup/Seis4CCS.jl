@@ -21,6 +21,7 @@ niter=${niter:=16}
 bs=${bs:=4}
 snr=${snr:=0}
 
+julia pre.jl
 julia ConcToV.jl --nv $L
 julia GenLinearData.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth
 julia GenBandNoise.jl --nv $L --nsrc $nsrc --snr $snr

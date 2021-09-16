@@ -1,6 +1,6 @@
 # Seis4CCS.jl
 
-This repository contains scripts to run seismic monitoring of CCS with joint recovery on Azure batch. These scripts are suggested to run from docker image, which will be provided upon request.
+This repository contains scripts to run numerical simulations of seismic monitoring of CCS with joint recovery on Azure batch. These scripts are suggested to run from docker image, which will be provided upon request.
 
 ## TO-DO
 
@@ -38,3 +38,5 @@ If any question, please contact
 Ziyi (Francis) Yin, ziyi.yin@gatech.edu    
 Mathias Louboutin, mlouboutin3@gatech.edu    
 Felix J. Herrmann, felix.herrmann@gatech.edu     
+
+This research was carried out with the support of Georgia Research Alliance and partners of the ML4Seismic Center.
