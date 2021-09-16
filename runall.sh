@@ -25,4 +25,5 @@ julia pre.jl
 julia ConcToV.jl --nv $L
 julia GenLinearData.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth
 julia GenBandNoise.jl --nv $L --nsrc $nsrc --snr $snr
-julia JRMlinear.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs
+julia JRMsim.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs
+julia IndpRec.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs

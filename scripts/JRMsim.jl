@@ -17,7 +17,7 @@ batchsize = parsed_args["bs"]
 
 Random.seed!(1234);
 creds=joinpath(pwd(),"..","credentials.json")
-init_culsterless(L; credentials=creds, vm_size=vm, pool_name="JRMsim", verbose=1, nthreads=nth, auto_scale=false, n_julia_per_instance=batchsize)
+init_culsterless(L; credentials=creds, vm_size=vm, pool_name="JointRecovery", verbose=1, nthreads=nth, auto_scale=false, n_julia_per_instance=batchsize)
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
 JLD2.@load "../models/timelapsevrho$(L)vint.jld2" vp_stack rho_stack
@@ -66,7 +66,6 @@ C = joLinearFunctionFwd_T(size(C0, 1), n[1]*n[2],
                           b -> C_adj(b, C0, n),
                           Float32,Float64, name="Cmirrorext")
 
-ps = 0
 γ  = L/5f0 # hyperparameter to tune
 
 x = [zeros(Float32, size(C,2)) for i=1:L+1];
@@ -75,9 +74,9 @@ z = [zeros(Float64, size(C,1)) for i=1:L+1];
 lambda = zeros(Float64,L+1)
 
 # sim src acquisition
-xsrc_stack = [[[q_stack[i].geometry.xloc[s][1] for s = 1:nsrc] for k = 1:batchsize] for i = 1:L]
+xsrc_stack = [[[q_stack[i].geometry.xloc[s][1] for s = 1:dobs_stack[i].nsrc] for k = 1:batchsize] for i = 1:L]
 ysrc_stack = [[[0.0f0] for k = 1:batchsize] for i = 1:L]
-zsrc_stack = [[[q_stack[i].geometry.zloc[s][1] for s = 1:nsrc] for k = 1:batchsize] for i = 1:L]
+zsrc_stack = [[[q_stack[i].geometry.zloc[s][1] for s = 1:dobs_stack[i].nsrc] for k = 1:batchsize] for i = 1:L]
 
 src_geometry_stack = [Geometry(xsrc_stack[i], ysrc_stack[i], zsrc_stack[i]; dt=q_stack[i].geometry.dt[1], t=q_stack[i].geometry.t[1]) for i = 1:L]
 
@@ -87,7 +86,7 @@ src_geometry_stack = [Geometry(xsrc_stack[i], ysrc_stack[i], zsrc_stack[i]; dt=q
 for  j=1:niter
 
 	# Main loop			   
-    @printf("JRM Iteration: %d \n", j)
+    @printf("Simultaneous source JRM Iteration: %d \n", j)
     flush(Base.stdout)
 
     # Set up weights for current iteration
@@ -114,7 +113,7 @@ for  j=1:niter
 
 	global t = 2*phi/norm(g)^2 # dynamic step
 
-    # anti-chatter
+    # update
 	for i = 1:L+1
 		global z[i] -= t .* g[i]
 	end
@@ -131,6 +130,3 @@ for  j=1:niter
 	end
     JLD2.@save "../results/JRMsim$(j)Iter$(L)vintages$(nsrc)nsrc.jld2" x z g lambda phi
 end
-
-using AzureClusterlessHPC
-delete_all_jobs()
