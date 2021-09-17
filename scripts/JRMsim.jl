@@ -14,7 +14,7 @@ niter = parsed_args["niter"]
 nth = parsed_args["nth"]
 nsrc = parsed_args["nsrc"]
 batchsize = parsed_args["bs"]
-γ = parsed_args["gamma"] # hyperparameter to tune
+γ = Float32(parsed_args["gamma"]) # hyperparameter to tune
 
 Random.seed!(1234);
 creds=joinpath(pwd(),"..","credentials.json")
