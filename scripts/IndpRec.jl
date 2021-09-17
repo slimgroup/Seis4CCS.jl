@@ -66,10 +66,11 @@ C = joLinearFunctionFwd_T(size(C0, 1), n[1]*n[2],
                           b -> C_adj(b, C0, n),
                           Float32,Float64, name="Cmirrorext")
 
-γ  = L/5f0 # hyperparameter to tune
-
 x = [zeros(Float32, size(C,2)) for i=1:L];
 z = [zeros(Float64, size(C,1)) for i=1:L];
+
+flag = [BitArray(undef,size(C,1)) for i=1:L];
+sumsign = [zeros(Float32,size(C,1)) for i=1:L];
 
 lambda = zeros(Float64,L)
 
@@ -114,10 +115,13 @@ for  j=1:niter
 	global t = 2*phi/norm(g)^2 # dynamic step
 
     # update
-	for i = 1:L
-		global z[i] -= t .* g[i]
-	end
-
+    for i = 1:L
+        global sumsign[i] = sumsign[i] + sign.(g[i])
+        tau = t*ones(Float32,size(C,1))
+        tau[findall(flag[i])] = deepcopy((t*abs.(sumsign[i])/j)[findall(flag[i])])
+        global z[i] -= tau .* g[i]
+    end
+	
 	(j==1) && global lambda = [quantile(abs.(vec(z[i])), .95) for i = 1:L]	# estimate thresholding parameter at 1st iteration
     lambda1 = maximum(lambda)
     for i = 1:L

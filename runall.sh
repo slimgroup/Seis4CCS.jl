@@ -20,9 +20,10 @@ nth=${nth:=8}
 niter=${niter:=16}
 bs=${bs:=4}
 snr=${snr:=0}
+gamma=${gamma:=1}
 
 julia pre.jl
 julia ConcToV.jl --nv $L
 julia GenLinearData.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth
 julia JRMsim.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs
-julia IndpRec.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs
+julia IndpRec.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs --gamma $gamma

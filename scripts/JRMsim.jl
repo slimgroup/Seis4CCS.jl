@@ -14,6 +14,7 @@ niter = parsed_args["niter"]
 nth = parsed_args["nth"]
 nsrc = parsed_args["nsrc"]
 batchsize = parsed_args["bs"]
+γ = parsed_args["gamma"] # hyperparameter to tune
 
 Random.seed!(1234);
 creds=joinpath(pwd(),"..","credentials.json")
@@ -66,12 +67,13 @@ C = joLinearFunctionFwd_T(size(C0, 1), n[1]*n[2],
                           b -> C_adj(b, C0, n),
                           Float32,Float64, name="Cmirrorext")
 
-γ  = L/5f0 # hyperparameter to tune
-
 x = [zeros(Float32, size(C,2)) for i=1:L+1];
 z = [zeros(Float64, size(C,1)) for i=1:L+1];
 
-lambda = zeros(Float64,L+1)
+flag = [BitArray(undef,size(C,1)) for i=1:L+1];
+sumsign = [zeros(Float32,size(C,1)) for i=1:L+1];
+
+lambda = zeros(Float64,L+1);
 
 # sim src acquisition
 xsrc_stack = [[[q_stack[i].geometry.xloc[s][1] for s = 1:dobs_stack[i].nsrc] for k = 1:batchsize] for i = 1:L]
@@ -113,10 +115,13 @@ for  j=1:niter
 
 	global t = 2*phi/norm(g)^2 # dynamic step
 
-    # update
-	for i = 1:L+1
-		global z[i] -= t .* g[i]
-	end
+    # anti-chatter
+    for i = 1:L+1
+        global sumsign[i] = sumsign[i] + sign.(g[i])
+        tau = t*ones(Float32,size(C,1))
+        tau[findall(flag[i])] = deepcopy((t*abs.(sumsign[i])/j)[findall(flag[i])])
+        global z[i] -= tau .* g[i]
+    end
 
 	(j==1) && global lambda = [quantile(abs.(vec(z[i])), .95) for i = 1:L+1]	# estimate thresholding parameter at 1st iteration
     lambda1 = maximum(lambda[2:end])

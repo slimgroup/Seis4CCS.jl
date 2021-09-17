@@ -29,6 +29,10 @@ function parse_commandline()
             help = "SNR of noisy data"
             arg_type = Float64
             default = 0.0
+        "--gamma"
+            help = "Weighting on common component"
+            arg_type = Float64
+            default = 1.0
     end
     return parse_args(s)
 end
