@@ -19,9 +19,10 @@ for i = 1:length(noise_stack)
     for j = 1:noise_stack[i].nsrc
         e = randn(Float32,size(dobs_stack[i].data[j]))
         noise_stack[i].data[j] = real.(ifft(fft(e).*fft(q_stack[i].data[j])))
-        noise_stack[i] = noise_stack[i]/norm(noise_stack[i])*scale*norm(dobs_stack[i])
     end
 end
+
+noise_stack = noise_stack/norm(noise_stack)*scale*norm(dobs_stack)
 
 dobs_stack = dobs_stack + noise_stack
 

@@ -113,7 +113,7 @@ for  j=1:niter
 	flush(Base.stdout)
 	# Step size and update variable
 
-	global t = 2*phi/norm(g)^2 # dynamic step
+	global t = γ^2f0*2f-5/(L+γ^2f0)/12.5 # fixed step
 
     # anti-chatter
     for i = 1:L+1

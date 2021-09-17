@@ -112,7 +112,7 @@ for  j=1:niter
 	flush(Base.stdout)
 	# Step size and update variable
 
-	global t = 2*phi/norm(g)^2 # dynamic step
+	global t = 2f-5/12.5 # fixed step
 
     # update
     for i = 1:L
@@ -121,7 +121,7 @@ for  j=1:niter
         tau[findall(flag[i])] = deepcopy((t*abs.(sumsign[i])/j)[findall(flag[i])])
         global z[i] -= tau .* g[i]
     end
-	
+
 	(j==1) && global lambda = [quantile(abs.(vec(z[i])), .95) for i = 1:L]	# estimate thresholding parameter at 1st iteration
     lambda1 = maximum(lambda)
     for i = 1:L
