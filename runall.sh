@@ -25,5 +25,5 @@ gamma=${gamma:=1}
 julia pre.jl
 julia ConcToV.jl --nv $L
 julia GenLinearData.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth
-julia JRMsim.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs
-julia IndpRec.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs --gamma $gamma
+julia JRMsim.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs --gamma $gamma
+julia IndpRec.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs
