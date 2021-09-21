@@ -71,4 +71,4 @@ dobs_stack = Array{judiVector{Float32,Array{Float32,2}},1}(undef, L)
     @async dobs_stack[i] = J_stack[i] * dm_stack[i]
 end
 
-JLD2.@save "../data/dobs$(L)vint$(nsrc)nsrc.jld2" dobs_stack q_stack
+JLD2.@save "../data/dobs$(L)vint$(nsrc)nsrcnoisefree.jld2" dobs_stack q_stack

@@ -112,7 +112,7 @@ for  j=1:niter
 	flush(Base.stdout)
 	# Step size and update variable
 
-	global t = 2f-5/12.5 # fixed step
+	global t = 5f-6 # fixed step
 
     # update
     for i = 1:L

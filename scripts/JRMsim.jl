@@ -22,7 +22,7 @@ init_culsterless(L; credentials=creds, vm_size=vm, pool_name="JointRecovery", ve
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
 JLD2.@load "../models/timelapsevrho$(L)vint.jld2" vp_stack rho_stack
-JLD2.@load "../data/dobs$(L)vint$(nsrc)nsrc.jld2" dobs_stack q_stack
+JLD2.@load "../data/dobs$(L)vint$(nsrc)nsrcnoisefree.jld2" dobs_stack q_stack
 
 idx_wb = find_water_bottom(rho.-rho[1,1])
 
@@ -113,7 +113,7 @@ for  j=1:niter
 	flush(Base.stdout)
 	# Step size and update variable
 
-	global t = γ^2f0*2f-5/(L+γ^2f0)/12.5 # fixed step
+	global t = γ^2f0*5f-6/(L+γ^2f0) # fixed step
 
     # anti-chatter
     for i = 1:L+1
@@ -123,7 +123,7 @@ for  j=1:niter
         global z[i] -= tau .* g[i]
     end
 
-	(j==1) && global lambda = [quantile(abs.(vec(z[i])), .95) for i = 1:L+1]	# estimate thresholding parameter at 1st iteration
+	(j==1) && global lambda = [quantile(abs.(vec(z[i])), .8) for i = 1:L+1]	# estimate thresholding parameter at 1st iteration
     lambda1 = maximum(lambda[2:end])
     for i = 2:L+1
         global lambda[i] = lambda1

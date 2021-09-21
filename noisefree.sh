@@ -22,9 +22,6 @@ bs=${bs:=4}
 snr=${snr:=0}
 gamma=${gamma:=1}
 
-julia pre.jl
 julia ConcToV.jl --nv $L
 julia GenLinearData.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth
-julia GenBandNoise.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --snr $snr
 julia JRMsim.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs --gamma $gamma
-julia IndpRec.jl --nv $L --nsrc $nsrc --vm $vm --nth $nth --niter $niter --bs $bs
