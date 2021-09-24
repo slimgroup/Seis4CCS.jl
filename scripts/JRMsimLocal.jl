@@ -3,7 +3,7 @@ using PyPlot
 using Random, Images, JLD2, LinearAlgebra
 using JOLI, Statistics, FFTW
 using Printf
-using JUDI4
+using JUDI
 
 using ArgParse
 include("../utils/parse_cmd.jl")
