@@ -1,6 +1,6 @@
 using Random, Images, JLD2, LinearAlgebra
 using JOLI, Statistics, FFTW
-using JUDI4Cloud
+using JUDI
 using Printf
 
 using ArgParse
