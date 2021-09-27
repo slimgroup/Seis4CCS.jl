@@ -112,7 +112,7 @@ for  j=1:niter
     phi1 = Array{Float32, 1}(undef, L)
     g1 = Array{Array{Float32,2}, 1}(undef, L)
     for i = 1:L
-        phi1[i], g1[i] = lsrtm_objective(model0_stack[i], q_j[i], dobs_j[i], dmx[i]; options=opt, nlind=false)
+        phi1[i], g1[i] = lsrtm_objective(model0_stack[i], q_j[i], dobs_j[i], dmx[i]; options=opt, nlind=true)
     end
     phi = sum(phi1)
     g = [1f0/γ*C*Mr'*vec(sum(g1)), [C*Mr'*vec(g1[i]) for i=1:L]...]
