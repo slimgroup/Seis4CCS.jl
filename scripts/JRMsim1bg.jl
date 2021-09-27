@@ -37,7 +37,7 @@ for i = 1:L
     rho0_stack[i][:,maximum(idx_wb)+1:end] .= 1f0./convert(Array{Float32,2},imfilter(1f0./rho_stack[1][:,maximum(idx_wb)+1:end], Kernel.gaussian(10)))
 end
 
-model0_stack = [Model(n,d,o,m0_stack[i];rho0_stack[i], nb=80) for i = 1:L]
+model0_stack = [Model(n,d,o,m0_stack[i];rho=rho0_stack[i], nb=80) for i = 1:L]
 
 opt = JUDI.Options(isic=true)
 
