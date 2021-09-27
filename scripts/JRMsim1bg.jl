@@ -157,7 +157,7 @@ for  j=1:niter
         global z[i] -= tau .* g[i]
     end
 
-	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .8), [quantile(abs.(vec(z[i])), .85) for i = 2:L+1]...]	# estimate thresholding parameter at 1st iteration
+	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .85), [quantile(abs.(vec(z[i])), .9) for i = 2:L+1]...]	# estimate thresholding parameter at 1st iteration
     lambda1 = maximum(lambda[2:end])
     for i = 2:L+1
         global lambda[i] = lambda1
