@@ -16,7 +16,7 @@ nsrc = parsed_args["nsrc"]
 batchsize = parsed_args["bs"]
 γ = Float32(parsed_args["gamma"]) # hyperparameter to tune
 
-Random.seed!(1234);
+Random.seed!(1432);
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
 JLD2.@load "../models/timelapsevrho$(L)vint.jld2" vp_stack rho_stack
@@ -157,7 +157,7 @@ for  j=1:niter
         global z[i] -= tau .* g[i]
     end
 
-	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .85), [quantile(abs.(vec(z[i])), .9) for i = 2:L+1]...]	# estimate thresholding parameter at 1st iteration
+	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .85), [quantile(abs.(vec(z[i])), .92) for i = 2:L+1]...]	# estimate thresholding parameter at 1st iteration
     lambda1 = maximum(lambda[2:end])
     for i = 2:L+1
         global lambda[i] = lambda1
