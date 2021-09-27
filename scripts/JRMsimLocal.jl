@@ -62,8 +62,8 @@ function dip(x,n;k=20)
 end
 
 D = joLinearFunctionFwd_T(prod(n), prod(n),
-                                 v -> dip(v,n;k=3),
-                                 w -> dip(w,n;k=3),
+                                 v -> dip(v,n;k=2),
+                                 w -> dip(w,n;k=2),
                                  Float32,Float32,name="dip filter")
 
 Mr = Tm*D*S

@@ -45,7 +45,33 @@ opt = JUDI.Options(isic=true)
 
 Tm = judiTopmute(model0_stack[1].n, maximum(idx_wb), 3)  # Mute water column
 S = judiDepthScaling(model0_stack[1])
-Mr = Tm*S
+
+function dip(x,n;k=20)
+    image = reshape(x,n)
+    image_ext = zeros(Float32,n[1],2*n[2])
+    image_ext[:,1:n[2]] = image
+    image_ext[:,n[2]+1:end] = reverse(image,dims=2)
+    image_f = fftshift(fft(image_ext))
+    mask = ones(Float32,n[1],2*n[2])
+    for i = 1:n[1]
+        for j = 1:2*n[2]
+            if (i-(n[1]+1)/2-k*j+k*(2*n[2]+1)/2)*(i-(n[1]+1)/2+k*j-k*(2*n[2]+1)/2)>0
+                mask[i,j] = 0f0
+            end
+        end
+    end
+    mask = convert(Array{Float32},imfilter(mask,Kernel.gaussian(20)))
+    image_f1 = mask .* image_f
+    image_out = (vec(real.(ifft(ifftshift(image_f1)))[:,1:n[2]])+vec(real.(ifft(ifftshift(image_f1)))[:,end:-1:n[2]+1]))/2f0
+    return image_out
+end
+
+D = joLinearFunctionFwd_T(prod(n), prod(n),
+                                 v -> dip(v,n;k=2),
+                                 w -> dip(w,n;k=2),
+                                 Float32,Float32,name="dip filter")
+
+Mr = Tm*D*S
 
 # Soft thresholding functions and Curvelet transform
 soft_thresholding(x::Array{Float64}, lambda) = sign.(x) .* max.(abs.(x) .- convert(Float64, lambda), 0.0)
@@ -131,7 +157,7 @@ for  j=1:niter
         global z[i] -= tau .* g[i]
     end
 
-	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .8), [quantile(abs.(vec(z[i])), .9) for i = 2:L+1]...]	# estimate thresholding parameter at 1st iteration
+	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .8), [quantile(abs.(vec(z[i])), .85) for i = 2:L+1]...]	# estimate thresholding parameter at 1st iteration
     lambda1 = maximum(lambda[2:end])
     for i = 2:L+1
         global lambda[i] = lambda1
