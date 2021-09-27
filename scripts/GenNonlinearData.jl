@@ -42,7 +42,7 @@ zrec = range((maximum(idx_wb)-1)*d[1]-2f0,stop=(maximum(idx_wb)-1)*d[1]-2f0,leng
 
 recGeometry = Geometry(xrec,yrec,zrec; dt=dtR, t=timeR, nsrc=nsrc)
 
-ntComp = get_computational_nt(srcGeometry_stack[1], recGeometry, model)
+ntComp = get_computational_nt(srcGeometry_stack[1], recGeometry, model_stack[1])
 info = Info(prod(n), nsrc, ntComp)
 
 opt = JUDI.Options(isic=true)
