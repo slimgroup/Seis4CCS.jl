@@ -147,7 +147,7 @@ for  j=1:niter
 	flush(Base.stdout)
 	# Step size and update variable
 
-	global t = γ^2f0*5f-7/(L+γ^2f0) # fixed step
+	global t = γ^2f0*5f-7/(L+γ^2f0)*32/nsrc # fixed step
 
     # anti-chatter
     for i = 1:L+1
