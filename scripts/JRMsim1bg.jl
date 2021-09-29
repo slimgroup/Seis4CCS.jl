@@ -147,7 +147,7 @@ for  j=1:niter
 	flush(Base.stdout)
 	# Step size and update variable
 
-	global t = γ^2f0*5f-7/(L+γ^2f0)*32/nsrc # fixed step
+	global t = γ^2f0*4f-7/(L+γ^2f0)*32/nsrc # fixed step
 
     # anti-chatter
     for i = 1:L+1
@@ -157,7 +157,7 @@ for  j=1:niter
         global z[i] -= tau .* g[i]
     end
 
-	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .8), [quantile(abs.(vec(z[i])), .92) for i = 2:L+1]...]	# estimate thresholding parameter at 1st iteration
+	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .6), [quantile(abs.(vec(z[i])), .95) for i = 2:L+1]...]	# estimate thresholding parameter at 1st iteration
     lambda1 = maximum(lambda[2:end])
     for i = 2:L+1
         global lambda[i] = lambda1
