@@ -3,7 +3,7 @@
 cd scripts
 
 L=${L:=2}
-nsrc=${nsrc:=32}
+nsrc=${nsrc:=64}
 vm=${vm:=Standard_E8s_v3}
 nth=${nth:=8}
 niter=${niter:=8}

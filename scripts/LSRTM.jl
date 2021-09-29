@@ -117,7 +117,7 @@ src_geometry_stack = [Geometry(xsrc_stack[i], ysrc_stack[i], zsrc_stack[i]; dt=q
 for  j=1:niter
 
 	# Main loop			   
-    @printf("Simultaneous source JRM Iteration: %d \n", j)
+    @printf("Simultaneous source LSRTM Iteration: %d \n", j)
     flush(Base.stdout)
 
     # Set up weights for current iteration
