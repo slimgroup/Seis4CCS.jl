@@ -3,7 +3,6 @@ using PyPlot
 using Random, Images, JLD2, LinearAlgebra
 using JOLI, Statistics, FFTW
 using Printf
-using JUDI4Cloud
 
 using ArgParse
 include("../utils/parse_cmd.jl")
@@ -16,6 +15,9 @@ nsrc = parsed_args["nsrc"]
 batchsize = parsed_args["bs"]
 γ = Float32(parsed_args["gamma"]) # hyperparameter to tune
 
+using JUDI4Cloud
+creds=joinpath(pwd(),"..","credentials.json")
+init_culsterless(batchsize; credentials=creds, vm_size=vm, pool_name="JRM", verbose=1, nthreads=nth, auto_scale=false, n_julia_per_instance=batchsize)
 Random.seed!(1432);
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
