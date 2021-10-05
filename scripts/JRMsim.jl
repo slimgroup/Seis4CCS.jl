@@ -16,9 +16,7 @@ nsrc = parsed_args["nsrc"]
 batchsize = parsed_args["bs"]
 γ = Float32(parsed_args["gamma"]) # hyperparameter to tune
 
-Random.seed!(1234);
-creds=joinpath(pwd(),"..","credentials.json")
-init_culsterless(L; credentials=creds, vm_size=vm, pool_name="JointRecovery", verbose=1, nthreads=nth, auto_scale=false, n_julia_per_instance=batchsize)
+Random.seed!(1432);
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
 JLD2.@load "../models/timelapsevrho$(L)vint.jld2" vp_stack rho_stack
@@ -30,11 +28,16 @@ nsrc = dobs_stack[1].nsrc
 
 v0_stack = deepcopy(vp_stack./1f3)
 for i = 1:L
-    v0_stack[i][:,maximum(idx_wb)+1:end] .= 1f0./convert(Array{Float32,2},imfilter(1f3./vp_stack[i][:,maximum(idx_wb)+1:end], Kernel.gaussian(10)))
+    v0_stack[i][:,maximum(idx_wb)+1:end] .= 1f0./convert(Array{Float32,2},imfilter(1f3./vp_stack[1][:,maximum(idx_wb)+1:end], Kernel.gaussian(10)))
 end
 m0_stack = [1f0./v0_stack[i].^2f0 for i = 1:L]
 
-model0_stack = [Model(n,d,o,m0_stack[i]; nb=80) for i = 1:L]
+rho0_stack = deepcopy(rho_stack)
+for i = 1:L
+    rho0_stack[i][:,maximum(idx_wb)+1:end] .= 1f0./convert(Array{Float32,2},imfilter(1f0./rho_stack[1][:,maximum(idx_wb)+1:end], Kernel.gaussian(10)))
+end
+
+model0_stack = [Model(n,d,o,m0_stack[i];rho=rho0_stack[i], nb=80) for i = 1:L]
 
 opt = JUDI.Options(isic=true)
 
@@ -42,7 +45,33 @@ opt = JUDI.Options(isic=true)
 
 Tm = judiTopmute(model0_stack[1].n, maximum(idx_wb), 3)  # Mute water column
 S = judiDepthScaling(model0_stack[1])
-Mr = Tm*S
+
+function dip(x,n;k=20)
+    image = reshape(x,n)
+    image_ext = zeros(Float32,n[1],2*n[2])
+    image_ext[:,1:n[2]] = image
+    image_ext[:,n[2]+1:end] = reverse(image,dims=2)
+    image_f = fftshift(fft(image_ext))
+    mask = ones(Float32,n[1],2*n[2])
+    for i = 1:n[1]
+        for j = 1:2*n[2]
+            if (i-(n[1]+1)/2-k*j+k*(2*n[2]+1)/2)*(i-(n[1]+1)/2+k*j-k*(2*n[2]+1)/2)>0
+                mask[i,j] = 0f0
+            end
+        end
+    end
+    mask = convert(Array{Float32},imfilter(mask,Kernel.gaussian(20)))
+    image_f1 = mask .* image_f
+    image_out = (vec(real.(ifft(ifftshift(image_f1)))[:,1:n[2]])+vec(real.(ifft(ifftshift(image_f1)))[:,end:-1:n[2]+1]))/2f0
+    return image_out
+end
+
+D = joLinearFunctionFwd_T(prod(n), prod(n),
+                                 v -> dip(v,n;k=2),
+                                 w -> dip(w,n;k=2),
+                                 Float32,Float32,name="dip filter")
+
+Mr = Tm*D*S
 
 # Soft thresholding functions and Curvelet transform
 soft_thresholding(x::Array{Float64}, lambda) = sign.(x) .* max.(abs.(x) .- convert(Float64, lambda), 0.0)
@@ -106,14 +135,14 @@ for  j=1:niter
 
     dmx = [Mr*(1f0/γ*x[1]+x[i+1]) for i = 1:L]
     
-    phi, g1 = lsrtm_objective(model0_stack, q_j, dobs_j, dmx; options=opt, nlind=false)
+    phi, g1 = lsrtm_objective(model0_stack, q_j, dobs_j, dmx; options=opt, nlind=true)
     g = [1f0/γ*C*Mr'*vec(sum(g1)), [C*Mr'*vec(g1[i]) for i=1:L]...]
 
 	@printf("At iteration %d function value is %2.2e \n", j, phi)
 	flush(Base.stdout)
 	# Step size and update variable
 
-	global t = γ^2f0*5f-6/(L+γ^2f0) # fixed step
+	global t = γ^2f0*4f-7/(L+γ^2f0)*32/nsrc # fixed step
 
     # anti-chatter
     for i = 1:L+1
@@ -123,7 +152,7 @@ for  j=1:niter
         global z[i] -= tau .* g[i]
     end
 
-	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .8), [quantile(abs.(vec(z[i])), .9) for i = 1:L+1]...]	# estimate thresholding parameter at 1st iteration
+	(j==1) && global lambda = [quantile(abs.(vec(z[1])), .6), [quantile(abs.(vec(z[i])), .95) for i = 2:L+1]...]	# estimate thresholding parameter at 1st iteration
     lambda1 = maximum(lambda[2:end])
     for i = 2:L+1
         global lambda[i] = lambda1
