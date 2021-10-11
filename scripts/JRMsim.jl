@@ -17,7 +17,7 @@ batchsize = parsed_args["bs"]
 
 using JUDI4Cloud
 creds=joinpath(pwd(),"..","credentials.json")
-init_culsterless(batchsize; credentials=creds, vm_size=vm, pool_name="JRM", verbose=1, nthreads=nth, auto_scale=false, n_julia_per_instance=batchsize)
+init_culsterless(L; credentials=creds, vm_size=vm, pool_name="JRM", verbose=1, nthreads=nth, auto_scale=false, n_julia_per_instance=batchsize)
 Random.seed!(1432);
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
