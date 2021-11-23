@@ -4,6 +4,7 @@ using Random, Images, JLD2, LinearAlgebra
 using JOLI, Statistics, FFTW
 using Printf
 using JUDI
+using MECurvelets
 
 using ArgParse
 include("../utils/parse_cmd.jl")
@@ -14,13 +15,27 @@ niter = parsed_args["niter"]
 nth = parsed_args["nth"]
 nsrc = parsed_args["nsrc"]
 batchsize = parsed_args["bs"]
-γ = Float32(parsed_args["gamma"]) # hyperparameter to tune
 
-Random.seed!(1432);
+import MECurvelets.soft_thresholding
+
+function soft_thresholding(c::Vector{Complex{vDt}}, λ::vDt) where {vDt}
+    out = exp.(angle.(c)im) .* max.(abs.(c) .- convert(vDt, λ), 0)
+    return out
+end
+
+function soft_thresholding(c::Vector{Complex{vDt}}, λ::Vector{vDt}) where {vDt}
+    out = exp.(angle.(c)im) .* max.(abs.(c) .- convert.(vDt, λ), 0)
+    return out
+end
+
+Random.seed!(1234);
 
 JLD2.@load "../models/Compass_tti_625m.jld2"
 JLD2.@load "../models/timelapsevrho$(L)vint.jld2" vp_stack rho_stack
 JLD2.@load "../data/dobs$(L)vint$(nsrc)nsrcnoisefree.jld2" dobs_stack q_stack
+
+C = joMECurvelet2D(n; DDT=Float32, RDT=Complex{Float32})
+support = BitVector(undef, size(C,1))   # initially zero
 
 idx_wb = find_water_bottom(rho.-rho[1,1])
 
@@ -45,56 +60,11 @@ opt = JUDI.Options(isic=true)
 
 Tm = judiTopmute(model0_stack[1].n, maximum(idx_wb), 3)  # Mute water column
 S = judiDepthScaling(model0_stack[1])
-
-function dip(x,n;k=20)
-    image = reshape(x,n)
-    image_ext = zeros(Float32,n[1],2*n[2])
-    image_ext[:,1:n[2]] = image
-    image_ext[:,n[2]+1:end] = reverse(image,dims=2)
-    image_f = fftshift(fft(image_ext))
-    mask = ones(Float32,n[1],2*n[2])
-    for i = 1:n[1]
-        for j = 1:2*n[2]
-            if (i-(n[1]+1)/2-k*j+k*(2*n[2]+1)/2)*(i-(n[1]+1)/2+k*j-k*(2*n[2]+1)/2)>0
-                mask[i,j] = 0f0
-            end
-        end
-    end
-    mask = convert(Array{Float32},imfilter(mask,Kernel.gaussian(20)))
-    image_f1 = mask .* image_f
-    image_out = (vec(real.(ifft(ifftshift(image_f1)))[:,1:n[2]])+vec(real.(ifft(ifftshift(image_f1)))[:,end:-1:n[2]+1]))/2f0
-    return image_out
-end
-
-D = joLinearFunctionFwd_T(prod(n), prod(n),
-                                 v -> dip(v,n;k=2),
-                                 w -> dip(w,n;k=2),
-                                 Float32,Float32,name="dip filter")
-
-Mr = Tm*D*S
+Mr = Tm*S
 
 # Soft thresholding functions and Curvelet transform
 soft_thresholding(x::Array{Float64}, lambda) = sign.(x) .* max.(abs.(x) .- convert(Float64, lambda), 0.0)
 soft_thresholding(x::Array{Float32}, lambda) = sign.(x) .* max.(abs.(x) .- convert(Float32, lambda), 0f0)
-
-C0 = joCurvelet2D(2*n[1], 2*n[2]; zero_finest = false, DDT = Float32, RDT = Float64)
-
-function C_fwd(im, C, n)
-	im = hcat(reshape(im, n), reshape(im, n)[:, end:-1:1])
-    im = vcat(im, im[end:-1:1,:])
-	coeffs = C*vec(im)/2f0
-	return coeffs
-end
-
-function C_adj(coeffs, C, n)
-	im = reshape(C'*coeffs, 2*n[1], 2*n[2])
-	return vec(im[1:n[1], 1:n[2]] + im[1:n[1], end:-1:n[2]+1] + im[end:-1:n[1]+1, 1:n[2]] + im[end:-1:n[1]+1, end:-1:n[2]+1])/2f0
-end
-
-C = joLinearFunctionFwd_T(size(C0, 1), n[1]*n[2],
-                          x -> C_fwd(x, C0, n),
-                          b -> C_adj(b, C0, n),
-                          Float32,Float64, name="Cmirrorext")
 
 x = [zeros(Float32, size(C,2)) for i=1:L+1];
 z = [zeros(Float64, size(C,1)) for i=1:L+1];

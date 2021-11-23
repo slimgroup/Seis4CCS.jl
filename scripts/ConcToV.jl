@@ -83,4 +83,4 @@ sw_stack = [Float32.(imresize([zeros(Float32,19,325);conc[indices[i],:,:]]',n)) 
 vp_stack = [Patchy(sw_stack[i], vp, vs, rho, phi)[1] for i = 1:L]
 rho_stack = [Patchy(sw_stack[i], vp, vs, rho, phi)[3] for i = 1:L]
 
-JLD2.@save "../models/timelapsevrho$(L)vint.jld2" vp_stack rho_stack
+JLD2.@save "../models/timelapsevrho$(L)vint_finer.jld2" vp_stack rho_stack
