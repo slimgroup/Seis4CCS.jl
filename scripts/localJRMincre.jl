@@ -3,7 +3,7 @@ using PyPlot
 using Random, Images, JLD2, LinearAlgebra
 using JOLI, Statistics, FFTW
 using Printf
-using JUDI4Cloud
+using JUDI
 using MECurvelets
 
 using ArgParse
@@ -15,7 +15,6 @@ nth = 2
 batchsize = 8
 nsrc = 16
 
-using JUDI4Cloud
 creds=joinpath(pwd(),"..","credentials.json")
 Random.seed!(1234);
 
@@ -63,7 +62,7 @@ niter = 8
 
 for L = 2:nv
 
-    init_culsterless(L; credentials=creds, vm_size=vm, pool_name="JRM$(L)vintages", verbose=1, nthreads=nth, auto_scale=false, n_julia_per_instance=batchsize)
+    #init_culsterless(L; credentials=creds, vm_size=vm, pool_name="JRM$(L)vintages", verbose=1, nthreads=nth, auto_scale=false, n_julia_per_instance=batchsize)
     @printf("Simultaneous source JRM Iteration at vintage %d \n", L)
     flush(Base.stdout)
 
@@ -106,7 +105,7 @@ for L = 2:nv
 	    flush(Base.stdout)
 	    
         # Step size and update variable
-        t = 2f-4*phi/norm(g)^2f0; # fixed step
+        t = 2f-3*phi/norm(g)^2f0; # fixed step
         z -= t .* g;
         if L == 2 && j == 1
 	        global threshold = 30*[Float32.(quantile(abs.(z[i]), .98)) for i = 1:L+1]
@@ -119,7 +118,6 @@ for L = 2:nv
         x[1] = soft_thresholding(z[1], threshold1)
         x[2:L+1] = [soft_thresholding(z[i], threshold2) for i = 2:L+1]
     end
-    finalize_culsterless()
     JLD2.@save "../results/JRMsimnv$(nv)no$(L)IncreJRMwl1.jld2" x z threshold support
     for i = 1:L+1
         global support = support .| (abs.(x[i]).>0f0)
