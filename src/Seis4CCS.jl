@@ -6,8 +6,6 @@ __precompile__()
 
 module Seis4CCS
 
-using JOLI, JUDI, FwiFlow
-
 export Seis4CCSPATH
 Seis4CCSPATH = dirname(pathof(Seis4CCS))
 
