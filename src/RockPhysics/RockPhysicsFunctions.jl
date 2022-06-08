@@ -40,7 +40,7 @@ function Patchy(sw::AbstractMatrix{T1}, vp::AbstractMatrix{T}, rho::AbstractMatr
 
     return Vp_new/1f3, rho_new
 end
-function Patchy(sw::AbstractArray{T1, 3}, vp::AbstractMatrix{T}, rho::AbstractMatrix{T}, phi::AbstractMatrix{T}, d::Tuple{T, T}; bulk_fl1 = 2.735f9, bulk_fl2 = 0.125f9,ρw = 7.766f2, ρo = 1.053f3) where T
+function Patchy(sw::AbstractArray{T1, 3}, vp::AbstractMatrix{T}, rho::AbstractMatrix{T}, phi::AbstractMatrix{T}, d::Tuple{T, T}; bulk_fl1 = 2.735f9, bulk_fl2 = 0.125f9,ρw = 7.766f2, ρo = 1.053f3) where {T1, T}
 
     stack = [Patchy(T.(sw[i,:,:]), vp, rho, phi, d; bulk_fl1=bulk_fl1, bulk_fl2=bulk_fl2, ρw = ρw, ρo=ρo) for i = 1:size(sw,1)]
     return [stack[i][1] for i = 1:size(sw,1)], [stack[i][2] for i = 1:size(sw,1)]
