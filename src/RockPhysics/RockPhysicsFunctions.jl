@@ -66,5 +66,3 @@ function find_water_bottom(m::AbstractArray{avDT,2};eps = 1e-4) where {avDT}
 end
 
 find_water_bottom(m::AbstractArray{avDT,3};eps = 1e-4) where {avDT} = reshape(find_water_bottom(reshape(m, :, size(m)[end]);eps=eps), size(m,1), size(m,2))
-
-find_water_bottom(m::PhysicalParameter;eps = 1e-4) = find_water_bottom(m.data)
