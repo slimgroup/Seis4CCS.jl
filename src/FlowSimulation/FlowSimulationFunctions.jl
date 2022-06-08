@@ -10,7 +10,16 @@ mutable struct comp_grid       # set up the grid structure
     h  :: Float64 # meter
     hy :: Float64 # meter
     nt :: Integer 
-    dt :: Number  # day
+    dt :: Float64  # day
+end
+
+function comp_grid(n::Tuple{Integer, Integer}, h::Tuple{T1, T1}, hy::T2, nt::Integer, dt::T3) where {T1, T2, T3}
+    @assert h[1] == h[2] "Now we only support equal spacing in x and z direction"
+    return comp_grid(n, Float64(h[1]), Float64(hy), nt, Float64(dt))
+end
+
+function comp_grid(n::Tuple{Integer, Integer}, h::T1, hy::T2, nt::Integer, dt::T3) where {T1, T2, T3}
+    return comp_grid(n, h[1], Float64(hy), nt, Float64(dt))
 end
 
 mutable struct Ctx
