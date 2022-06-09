@@ -1,3 +1,5 @@
+#### Adapted from https://lidongzh.github.io/FwiFlow.jl/dev/tutorials/flow/
+
 export flow, comp_grid
 
 const K_CONST =  9.869232667160130e-16 * 86400 * 1e3
@@ -20,7 +22,7 @@ function comp_grid(n::Tuple{Integer, Integer}, h::Tuple{T1, T1}, hy::T2, nt::Int
 end
 
 function comp_grid(n::Tuple{Integer, Integer}, h::T1, hy::T2, nt::Integer, dt::T3) where {T1, T2, T3}
-    return comp_grid(n, h[1], Float64(hy), nt, Float64(dt))
+    return comp_grid(n, Float64(h), Float64(hy), nt, Float64(dt))
 end
 
 ## Simulation structure for FwiFlow
