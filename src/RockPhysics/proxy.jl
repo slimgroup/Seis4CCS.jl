@@ -1,5 +1,6 @@
 export VtoK, Ktoϕ
 
+## Assume linear relationship between V and K in each layer
 function VtoK(v::AbstractMatrix{T}, d::Tuple{T, T}; α=1.03f0) where T
 
     n = size(v)
@@ -16,6 +17,7 @@ function VtoK(v::AbstractMatrix{T}, d::Tuple{T, T}; α=1.03f0) where T
     return Kh
 end
 
+## Kozeny carman relationship
 function Ktoϕ(K::AbstractMatrix{T}, d::Tuple{T, T}) where T
 
     n = size(K)

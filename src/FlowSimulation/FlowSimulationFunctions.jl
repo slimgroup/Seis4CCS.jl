@@ -5,6 +5,7 @@ const ALPHA = 1.0
 const SRC_CONST = 86400.0 #
 const GRAV_CONST = 9.8    # gravity constant
 
+## Only 2D flow simulation is supported now
 mutable struct comp_grid       # set up the grid structure
     n  :: Tuple{Integer, Integer} # x, z
     h  :: Float64 # meter
@@ -22,68 +23,45 @@ function comp_grid(n::Tuple{Integer, Integer}, h::T1, hy::T2, nt::Integer, dt::T
     return comp_grid(n, h[1], Float64(hy), nt, Float64(dt))
 end
 
+## Simulation structure for FwiFlow
 mutable struct Ctx
   m; n; h; NT; Δt; Z; X; ρw; ρo;
   μw; μo; K; g; ϕ; qw; qo; sw0
 end
 
-function tfCtxGen(m,n,h,NT,Δt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,sw0,ifTrue)
-  tf_h = constant(h)
-  # tf_NT = constant(NT)
-  tf_Δt = constant(Δt)
-  tf_Z = constant(Z)
-  tf_X= constant(X)
-  tf_ρw = constant(ρw)
-  tf_ρo = constant(ρo)
-  tf_μw = constant(μw)
-  tf_μo = constant(μo)
-  # tf_K = isa(K,Array) ? Variable(K) : K
-  if ifTrue
+function tfCtxGen(m,n,h,NT,Δt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,sw0)
+    tf_h = constant(h)
+    tf_Δt = constant(Δt)
+    tf_Z = constant(Z)
+    tf_X= constant(X)
+    tf_ρw = constant(ρw)
+    tf_ρo = constant(ρo)
+    tf_μw = constant(μw)
+    tf_μo = constant(μo)
     tf_K = constant(K)
-  else
-    tf_K = Variable(K)
-  end
-  tf_g = constant(g)
-  # tf_ϕ = Variable(ϕ)
-  tf_ϕ = constant(ϕ)
-  tf_qw = constant(qw)
-  tf_qo = constant(qo)
-  tf_sw0 = constant(sw0)
-  return Ctx(m,n,tf_h,NT,tf_Δt,tf_Z,tf_X,tf_ρw,tf_ρo,tf_μw,tf_μo,tf_K,tf_g,tf_ϕ,tf_qw,tf_qo,tf_sw0)
-end
-
-function Krw(Sw)
-    return Sw ^ 1.5
-end
-
-function Kro(So)
-    return So ^1.5
-end
-
-function ave_normal(quantity, m, n)
-    aa = sum(quantity)
-    return aa/(m*n)
+    tf_g = constant(g)
+    tf_ϕ = constant(ϕ)
+    tf_qw = constant(qw)
+    tf_qo = constant(qo)
+    tf_sw0 = constant(sw0)
+    return Ctx(m,n,tf_h,NT,tf_Δt,tf_Z,tf_X,tf_ρw,tf_ρo,tf_μw,tf_μo,tf_K,tf_g,tf_ϕ,tf_qw,tf_qo,tf_sw0)
 end
 
 # variables : sw, u, v, p
 # (time dependent) parameters: qw, qo, ϕ
 function onestep(sw, p, m, n, h, Δt, Z, ρw, ρo, μw, μo, K, g, ϕ, qw, qo)
     # step 1: update p
-    # λw = Krw(sw)/μw
-    # λo = Kro(1-sw)/μo
     λw = sw.*sw/μw
     λo = (1-sw).*(1-sw)/μo
     λ = λw + λo
     q = qw + qo + λw/(λo+1e-16).*qo
-    # q = qw + qo
     potential_c = (ρw - ρo)*g .* Z
 
     # Step 1: implicit potential
     Θ = upwlap_op(K * K_CONST, λo, potential_c, h, constant(0.0))
 
-    load_normal = (Θ+q/ALPHA) - ave_normal(Θ+q/ALPHA, m, n)
+    load_normal = (Θ+q/ALPHA) - mean(Θ+q/ALPHA)
 
-    # p = poisson_op(λ.*K* K_CONST, load_normal, h, constant(0.0), constant(1))
     p = upwps_op(K * K_CONST, λ, load_normal, p, h, constant(0.0), constant(0)) # potential p = pw - ρw*g*h 
 
     # step 2: implicit transport
@@ -126,7 +104,7 @@ function flow(K, ϕ, qw_value, qo_value, grid;
     ϕ = ϕ'
     X = reshape(repeat((1:n[1])*grid.h, outer = n[2]), n[1], n[2])'
     Z = reshape(repeat((1:n[2])*grid.h, outer = n[1]), n[2], n[1])
-    tfCtxTrue = tfCtxGen(grid.n[2],grid.n[1],grid.h,grid.nt,grid.dt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,S0,true)
+    tfCtxTrue = tfCtxGen(grid.n[2],grid.n[1],grid.h,grid.nt,grid.dt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,S0)
     sp = imseq(tfCtxTrue)
     sess = Session(); init(sess)
     S, p = sess.run(sp, Dict(qw=>qw_value,qo=>qo_value))
