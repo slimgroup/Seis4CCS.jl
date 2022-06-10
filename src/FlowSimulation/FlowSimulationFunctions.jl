@@ -28,10 +28,10 @@ end
 ## Simulation structure for FwiFlow
 mutable struct Ctx
   m; n; h; NT; Δt; Z; X; ρw; ρo;
-  μw; μo; K; g; ϕ; qw; qo; sw0
+  μw; μo; K; g; ϕ; qw; qo; sw0; p0
 end
 
-function tfCtxGen(m,n,h,NT,Δt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,sw0)
+function tfCtxGen(m,n,h,NT,Δt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,sw0,p0)
     tf_h = constant(h)
     tf_Δt = constant(Δt)
     tf_Z = constant(Z)
@@ -46,7 +46,8 @@ function tfCtxGen(m,n,h,NT,Δt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,sw0)
     tf_qw = constant(qw)
     tf_qo = constant(qo)
     tf_sw0 = constant(sw0)
-    return Ctx(m,n,tf_h,NT,tf_Δt,tf_Z,tf_X,tf_ρw,tf_ρo,tf_μw,tf_μo,tf_K,tf_g,tf_ϕ,tf_qw,tf_qo,tf_sw0)
+    tf_p0 = constant(p0)
+    return Ctx(m,n,tf_h,NT,tf_Δt,tf_Z,tf_X,tf_ρw,tf_ρo,tf_μw,tf_μo,tf_K,tf_g,tf_ϕ,tf_qw,tf_qo,tf_sw0,p0)
 end
 
 # variables : sw, u, v, p
@@ -75,7 +76,7 @@ end
 function imseq(tf_ctx)
     ta_sw, ta_p = TensorArray(tf_ctx.NT+1), TensorArray(tf_ctx.NT+1)
     ta_sw = write(ta_sw, 1, tf_ctx.sw0)
-    ta_p = write(ta_p, 1, constant(zeros(tf_ctx.m, tf_ctx.n)))
+    ta_p = write(ta_p, 1, tf_ctx.p0)
     i = constant(1, dtype=Int32)
     function condition(i, tas...)
         i <= tf_ctx.NT
@@ -93,12 +94,9 @@ function imseq(tf_ctx)
 end
 
 function flow(K, ϕ, qw_value, qo_value, grid;
-    ρw=501.9, ρo=1053.0, μw=0.1, μo=1.0, g=GRAV_CONST, S0=nothing)
+    ρw=501.9, ρo=1053.0, μw=0.1, μo=1.0, g=GRAV_CONST, S0=zeros(grid.n[2], grid.n[1]), p0=zeros(grid.n[2], grid.n[1]))
     qw = tf.placeholder(tf.float64)
     qo = tf.placeholder(tf.float64)
-    if isnothing(S0)
-        S0 = zeros(grid.n[2], grid.n[1])
-    end
     qw_value = permutedims(qw_value, [1, 3, 2]) * (1/grid.h^2)/grid.hy * SRC_CONST
     qo_value = permutedims(qo_value, [1, 3, 2]) * (1/grid.h^2)/grid.hy * SRC_CONST
     n = size(K)
@@ -106,9 +104,9 @@ function flow(K, ϕ, qw_value, qo_value, grid;
     ϕ = ϕ'
     X = reshape(repeat((1:n[1])*grid.h, outer = n[2]), n[1], n[2])'
     Z = reshape(repeat((1:n[2])*grid.h, outer = n[1]), n[2], n[1])
-    tfCtxTrue = tfCtxGen(grid.n[2],grid.n[1],grid.h,grid.nt,grid.dt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,S0)
+    tfCtxTrue = tfCtxGen(grid.n[2],grid.n[1],grid.h,grid.nt,grid.dt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,S0,p0)
     sp = imseq(tfCtxTrue)
     sess = Session(); init(sess)
     S, p = sess.run(sp, Dict(qw=>qw_value,qo=>qo_value))
     return permutedims(S, [1, 3, 2]), permutedims(p, [1, 3, 2])
-end 
+end
