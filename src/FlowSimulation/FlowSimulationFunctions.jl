@@ -10,9 +10,9 @@ const GRAV_CONST = 9.8    # gravity constant
 ## Only 2D flow simulation is supported now
 mutable struct comp_grid       # set up the grid structure
     n  :: Tuple{Integer, Integer} # x, z
-    h  :: Float64 # meter
-    hy :: Float64 # meter
-    nt :: Integer 
+    h  :: Float64 # meter (assume x and z use the same grid size)
+    hy :: Float64 # meter (thickness/crossline spacing)
+    nt :: Integer # number of time steps
     dt :: Float64  # day
 end
 
@@ -31,6 +31,7 @@ mutable struct Ctx
   μw; μo; K; g; ϕ; qw; qo; sw0; p0
 end
 
+## Generate a structure for FwiFlow
 function tfCtxGen(m,n,h,NT,Δt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,sw0,p0)
     tf_h = constant(h)
     tf_Δt = constant(Δt)
@@ -47,7 +48,7 @@ function tfCtxGen(m,n,h,NT,Δt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,sw0,p0)
     tf_qo = constant(qo)
     tf_sw0 = constant(sw0)
     tf_p0 = constant(p0)
-    return Ctx(m,n,tf_h,NT,tf_Δt,tf_Z,tf_X,tf_ρw,tf_ρo,tf_μw,tf_μo,tf_K,tf_g,tf_ϕ,tf_qw,tf_qo,tf_sw0,p0)
+    return Ctx(m,n,tf_h,NT,tf_Δt,tf_Z,tf_X,tf_ρw,tf_ρo,tf_μw,tf_μo,tf_K,tf_g,tf_ϕ,tf_qw,tf_qo,tf_sw0,tf_p0)
 end
 
 # variables : sw, u, v, p
@@ -72,8 +73,8 @@ function onestep(sw, p, m, n, h, Δt, Z, ρw, ρo, μw, μo, K, g, ϕ, qw, qo)
     return sw, p
 end
 
-
-function imseq(tf_ctx)
+## simulation
+function forward(tf_ctx)
     ta_sw, ta_p = TensorArray(tf_ctx.NT+1), TensorArray(tf_ctx.NT+1)
     ta_sw = write(ta_sw, 1, tf_ctx.sw0)
     ta_p = write(ta_p, 1, tf_ctx.p0)
@@ -105,7 +106,7 @@ function flow(K, ϕ, qw_value, qo_value, grid;
     X = reshape(repeat((1:n[1])*grid.h, outer = n[2]), n[1], n[2])'
     Z = reshape(repeat((1:n[2])*grid.h, outer = n[1]), n[2], n[1])
     tfCtxTrue = tfCtxGen(grid.n[2],grid.n[1],grid.h,grid.nt,grid.dt,Z,X,ρw,ρo,μw,μo,K,g,ϕ,qw,qo,S0,p0)
-    sp = imseq(tfCtxTrue)
+    sp = forward(tfCtxTrue)
     sess = Session(); init(sess)
     S, p = sess.run(sp, Dict(qw=>qw_value,qo=>qo_value))
     return permutedims(S, [1, 3, 2]), permutedims(p, [1, 3, 2])
