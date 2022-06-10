@@ -1,0 +1,14 @@
+name = "Seis4CCS"
+uuid = "808f26ee-2243-4b28-9f59-2530de529097"
+authors = ["Ziyi (Francis) Yin <ziyi.yin@gatech.edu> and SLIM contributors"]
+version = "0.1.0"
+
+[deps]
+FwiFlow = "a6a960b4-e246-4968-83bc-819d1955448a"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+
+[compat]
+FwiFlow = "0.2, 0.3"
+julia = "1"
