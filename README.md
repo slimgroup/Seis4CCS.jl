@@ -13,7 +13,13 @@ To answer these questions and to help drive innovations in seismic monitoring ac
 Seis4CCS can be installed with the standard julia package manager:
 
 ```julia
-] add/dev https://github.com/slimgroup/Seis4CCS.jl.git
+] add https://github.com/slimgroup/Seis4CCS.jl.git
+```
+
+or in a developer mode
+
+```julia
+] dev https://github.com/slimgroup/Seis4CCS.jl.git
 ```
 
 # Modules
