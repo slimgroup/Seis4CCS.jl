@@ -1,7 +1,6 @@
-using Seis4CCS.FlowSimulation
-
 ### This script follows the tutorial at https://lidongzh.github.io/FwiFlow.jl/dev/tutorials/flow/
 
+using Seis4CCS.FlowSimulation
 using SlimPlotting, PyPlot
 
 # Hyperparameter for flow simulation
@@ -27,5 +26,13 @@ for i = 1:6
     subplot(2,3,i)
     plot_velocity(S[10*i-9,:,:]', (h, h); new_fig=false, vmax=1)
     colorbar()
-    title("snapshot at day $((i-1)*10*dt)")
+    title("CO2 concentration at day $((i-1)*10*dt)")
+end
+
+figure(figsize=(20,12))
+for i = 1:6
+    subplot(2,3,i)
+    plot_velocity(p[10*i-9,:,:]', (h, h); new_fig=false, vmax=1)
+    colorbar()
+    title("pressure at day $((i-1)*10*dt)")
 end

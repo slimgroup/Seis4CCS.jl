@@ -109,5 +109,6 @@ function flow(K, ϕ, qw_value, qo_value, grid;
     sp = forward(tfCtxTrue)
     sess = Session(); init(sess)
     S, p = sess.run(sp, Dict(qw=>qw_value,qo=>qo_value))
+    p = p .+ reshape(ρw*g*Z, 1, grid.n[2], grid.n[1])
     return permutedims(S, [1, 3, 2]), permutedims(p, [1, 3, 2])
 end
