@@ -17,6 +17,15 @@ function VtoK(v::AbstractMatrix{T}, d::Tuple{T, T}; α=1.03f0) where T
     return Kh
 end
 
+function VtoK(v::AbstractArray{T, 3}, d::Tuple{T, T, T}; α=1.03f0) where T
+    Kh = deepcopy(v)
+    n = size(v)
+    for i = 1:n[2]
+        Kh[:,i,:] = VtoK(v[:,i,:], (d[1], d[end]); α=α)
+    end
+    return Kh
+end
+
 ## Kozeny carman relationship
 function Ktoϕ(K::AbstractMatrix{T}, d::Tuple{T, T}) where T
 
@@ -30,6 +39,15 @@ function Ktoϕ(K::AbstractMatrix{T}, d::Tuple{T, T}) where T
             phi[i,j] = minimum(real(roots(p)[findall(real(roots(p)).== roots(p))]))
         end
         phi[i,idx_ucfmt[i]-capgrid:idx_ucfmt[i]-1] = Float32.(range(0.056,stop=0.1,length=capgrid)) # porosity gradually decreases at the seal
+    end
+    return phi
+end
+
+function Ktoϕ(K::AbstractArray{T, 3}, d::Tuple{T, T, T}) where T
+    phi = deepcopy(K)
+    n = size(K)
+    for i = 1:n[2]
+        phi[:,i,:] = Ktoϕ(K[:,i,:], (d[1], d[end]))
     end
     return phi
 end
