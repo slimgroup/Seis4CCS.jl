@@ -28,11 +28,13 @@ for i = 1:6
     colorbar()
     title("CO2 concentration at day $((i-1)*10*dt)")
 end
+savefig("saturation.png", bbox_inches="tight", dpi=300)
 
 figure(figsize=(20,12))
 for i = 1:6
     subplot(2,3,i)
-    plot_velocity(p[10*i-9,:,:]', (h, h); new_fig=false, vmax=1)
+    plot_velocity(p[10*i-9,:,:]', (h, h); new_fig=false)
     colorbar()
     title("pressure at day $((i-1)*10*dt)")
 end
+savefig("pressure.png", bbox_inches="tight", dpi=300)
